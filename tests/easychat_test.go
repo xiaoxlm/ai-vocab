@@ -14,16 +14,16 @@ import (
 func TestEasyChat(t *testing.T) {
 	err := godotenv.Load("../.env")
 	if err != nil {
-		panic(err)
+		t.Fatal(err)
 	}
 
 	ctx := context.Background()
 	model, err := ark.NewChatModel(ctx, &ark.ChatModelConfig{
 		APIKey: os.Getenv("ARK_API_KEY"),
-		Model:  os.Getenv("ARK_MODEL"),
+		Model:  os.Getenv("ARK_LLM_MODEL"),
 	})
 	if err != nil {
-		panic(err)
+		t.Fatal(err)
 	}
 
 	input := []*schema.Message{
@@ -33,7 +33,7 @@ func TestEasyChat(t *testing.T) {
 
 	resp, err := model.Generate(ctx, input)
 	if err != nil {
-		panic(err)
+		t.Fatal(err)
 	}
 
 	fmt.Println(resp.Content)
