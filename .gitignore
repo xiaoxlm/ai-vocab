@@ -2,3 +2,4 @@
 .idea/
 .vscode/
 go.sum
+qdrant_storage/

@@ -40,8 +40,7 @@ func TestEmbedding(t *testing.T) {
 	}
 
 	for _, e := range embeddings {
-		fmt.Println("e content:", e)
-		fmt.Println("e length:", len(e))
+		fmt.Printf("e length:%d, e content:%v\n", len(e), e)
 	}
 }
 
