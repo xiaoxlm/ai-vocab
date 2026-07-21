@@ -4,9 +4,11 @@ go 1.26.4
 
 require (
 	github.com/cloudwego/eino v0.7.13
+	github.com/cloudwego/eino-ext/components/document/transformer/splitter/markdown v0.0.0-20260716140429-9137edd89e72
 	github.com/cloudwego/eino-ext/components/embedding/ark v0.1.2
 	github.com/cloudwego/eino-ext/components/indexer/qdrant v0.0.0-20260716140429-9137edd89e72
 	github.com/cloudwego/eino-ext/components/model/ark v0.1.68
+	github.com/cloudwego/eino-ext/components/retriever/qdrant v0.0.0-20260716140429-9137edd89e72
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/qdrant/go-client v1.18.3
@@ -20,7 +22,6 @@ require (
 	github.com/bytedance/sonic v1.15.0 // indirect
 	github.com/bytedance/sonic/loader v0.5.0 // indirect
 	github.com/cloudwego/base64x v0.1.6 // indirect
-	github.com/cloudwego/eino-ext/components/retriever/qdrant v0.0.0-20260716140429-9137edd89e72 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/eino-contrib/jsonschema v1.0.3 // indirect
 	github.com/goph/emperror v0.17.2 // indirect
