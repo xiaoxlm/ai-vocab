@@ -3,25 +3,18 @@ package tests
 import (
 	"context"
 	"fmt"
+	"github.com/xiaoxlm/ai-vocab/pkg/llm"
 	"os"
 	"testing"
 
-	"github.com/cloudwego/eino-ext/components/model/ark"
 	"github.com/cloudwego/eino/schema"
-	"github.com/joho/godotenv"
+	_ "github.com/xiaoxlm/ai-vocab/config"
 )
 
 func TestEasyChat(t *testing.T) {
-	err := godotenv.Load("../.env")
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	ctx := context.Background()
-	model, err := ark.NewChatModel(ctx, &ark.ChatModelConfig{
-		APIKey: os.Getenv("ARK_API_KEY"),
-		Model:  os.Getenv("ARK_LLM_MODEL"),
-	})
+	arkLLM := llm.NewArk(os.Getenv("ARK_API_KEY"), os.Getenv("ARK_LLM_MODEL"))
+	model, err := arkLLM.GetChatModel(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}

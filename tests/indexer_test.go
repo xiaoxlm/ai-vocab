@@ -6,48 +6,43 @@ import (
 	"os"
 	"testing"
 
-	"github.com/cloudwego/eino-ext/components/embedding/ark"
+	"github.com/xiaoxlm/ai-vocab/pkg/embedder"
+	"github.com/xiaoxlm/ai-vocab/pkg/indexer"
+
 	qdrant_indexer "github.com/cloudwego/eino-ext/components/indexer/qdrant"
 	"github.com/cloudwego/eino/schema"
 	"github.com/google/uuid"
-	"github.com/joho/godotenv"
 	"github.com/qdrant/go-client/qdrant"
 )
 
-func TestIndexer(t *testing.T) {
-	err := godotenv.Load("../.env")
-	if err != nil {
-		t.Fatal(err)
-	}
+var qdrantClient *qdrant.Client
 
-	ctx := context.Background()
-	// embedder
-	embedder, err := ark.NewEmbedder(ctx, &ark.EmbeddingConfig{
-		APIType:               new(ark.APIType), // 为了解决 CreateEmbeddings 中 fullURL suffix 的bug问题
-		MaxConcurrentRequests: new(1),           // 为了解决 CreateEmbeddings 中 fullURL suffix 的bug问题
-		APIKey:                os.Getenv("ARK_API_KEY"),
-		Model:                 "doubao-embedding-vision-251215",
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// qdrant client
-	qdrantClient, err := qdrant.NewClient(&qdrant.Config{
+func init() {
+	client, err := qdrant.NewClient(&qdrant.Config{
 		Host: "localhost",
 		Port: 6334,
 	})
+	if err != nil {
+		panic(err)
+	}
+
+	qdrantClient = client
+}
+
+func TestIndexer(t *testing.T) {
+	ctx := context.Background()
+	arkEmbedder, err := embedder.NewArk(os.Getenv("ARK_API_KEY"), os.Getenv("ARK_EMBEDDING_MODEL")).GetEmbedder(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// indexer
-	indexer, err := qdrant_indexer.NewIndexer(ctx, &qdrant_indexer.Config{
-		Client:     qdrantClient,
+	qdrantIndexer, err := indexer.NewQdrant(qdrantClient, arkEmbedder).GetIndexer(ctx, &qdrant_indexer.Config{
+		//Client:     qdrantClient,
 		Collection: "test",
 		VectorDim:  2048,
 		Distance:   qdrant.Distance_Cosine,
-		Embedding:  embedder, // 你的 embedding 组件
+		//Embedding:  arkEmbedder, // 你的 embedding 组件
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -74,7 +69,7 @@ func TestIndexer(t *testing.T) {
 			},
 		},
 	}
-	ids, err := indexer.Store(ctx, docs)
+	ids, err := qdrantIndexer.Store(ctx, docs)
 	if err != nil {
 		t.Fatal(err)
 	}

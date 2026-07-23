@@ -4,27 +4,20 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/xiaoxlm/ai-vocab/pkg/embedder"
 	"os"
 	"testing"
 
-	"github.com/cloudwego/eino-ext/components/embedding/ark"
 	"github.com/joho/godotenv"
 	arkopenai "github.com/sashabaranov/go-openai"
 )
 
 func TestEmbedding(t *testing.T) {
-	err := godotenv.Load("../.env")
-	if err != nil {
-		t.Fatal(err)
-	}
+
+	a := embedder.NewArk(os.Getenv("ARK_API_KEY"), os.Getenv("ARK_EMBEDDING_MODEL"))
 
 	ctx := context.Background()
-	embedder, err := ark.NewEmbedder(ctx, &ark.EmbeddingConfig{
-		APIType:               new(ark.APIType), // 为了解决 CreateEmbeddings 中 fullURL suffix 的bug问题
-		MaxConcurrentRequests: new(1),           // 为了解决 CreateEmbeddings 中 fullURL suffix 的bug问题
-		APIKey:                os.Getenv("ARK_API_KEY"),
-		Model:                 "doubao-embedding-vision-251215",
-	})
+	arkEmbedder, err := a.GetEmbedder(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -34,7 +27,7 @@ func TestEmbedding(t *testing.T) {
 		"战神",
 	}
 
-	embeddings, err := embedder.EmbedStrings(ctx, input)
+	embeddings, err := arkEmbedder.EmbedStrings(ctx, input)
 	if err != nil {
 		t.Fatal(err)
 	}

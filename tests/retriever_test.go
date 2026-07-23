@@ -3,49 +3,33 @@ package tests
 import (
 	"context"
 	"fmt"
+	"github.com/xiaoxlm/ai-vocab/pkg/embedder"
+	"github.com/xiaoxlm/ai-vocab/pkg/indexer"
 	"os"
 	"testing"
 
-	"github.com/cloudwego/eino-ext/components/embedding/ark"
 	qdrant_retriever "github.com/cloudwego/eino-ext/components/retriever/qdrant"
-	"github.com/joho/godotenv"
-	"github.com/qdrant/go-client/qdrant"
 )
 
 func TestRetriever(t *testing.T) {
-	err := godotenv.Load("../.env")
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	ctx := context.Background()
 	// embedder
-	embedder, err := ark.NewEmbedder(ctx, &ark.EmbeddingConfig{
-		APIType:               new(ark.APIType), // 为了解决 CreateEmbeddings 中 fullURL suffix 的bug问题
-		MaxConcurrentRequests: new(1),           // 为了解决 CreateEmbeddings 中 fullURL suffix 的bug问题
-		APIKey:                os.Getenv("ARK_API_KEY"),
-		Model:                 "doubao-embedding-vision-251215",
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	// qdrant client
-	qdrantClient, err := qdrant.NewClient(&qdrant.Config{
-		Host: "localhost",
-		Port: 6334,
-	})
+	arkEmbedder, err := embedder.NewArk(os.Getenv("ARK_API_KEY"), os.Getenv("ARK_EMBEDDING_MODEL")).GetEmbedder(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// 创建 retriever
-	retriever, _ := qdrant_retriever.NewRetriever(ctx, &qdrant_retriever.Config{
-		Client:         qdrantClient,
-		Collection:     "test",
-		Embedding:      embedder,
+	retriever, err := indexer.NewQdrant(qdrantClient, arkEmbedder).GetRetriever(ctx, &qdrant_retriever.Config{
+		//Client:         qdrantClient,
+		Collection: "test",
+		//Embedding:      embedder,
 		ScoreThreshold: new(0.4),
 		TopK:           5,
 	})
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// 搜索
 	docs, err := retriever.Retrieve(ctx, "操蛋")
