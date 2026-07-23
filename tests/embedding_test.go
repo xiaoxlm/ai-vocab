@@ -13,7 +13,6 @@ import (
 )
 
 func TestEmbedding(t *testing.T) {
-
 	a := embedder.NewArk(os.Getenv("ARK_API_KEY"), os.Getenv("ARK_EMBEDDING_MODEL"))
 
 	ctx := context.Background()
