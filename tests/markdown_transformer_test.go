@@ -3,45 +3,22 @@ package tests
 import (
 	"context"
 	"fmt"
-	"log"
-	"os"
+	"github.com/xiaoxlm/ai-vocab/pkg/splitter"
 	"testing"
-
-	"github.com/cloudwego/eino-ext/components/document/transformer/splitter/markdown"
-	"github.com/cloudwego/eino/schema"
-	"github.com/google/uuid"
 )
 
 func TestMarkdownTransformer(t *testing.T) {
 	ctx := context.Background()
 
-	splitter, err := markdown.NewHeaderSplitter(ctx, &markdown.HeaderConfig{
-		Headers: map[string]string{
-			"#":   "h1",
-			"##":  "h2",
-			"###": "h3",
-		},
-		TrimHeaders: true,
-	})
-	if err != nil {
-		t.Fatalf("创建拆分器失败: %v\n", err)
-	}
+	mk := splitter.NewMarkdown(map[string]string{
+		"#":   "h1",
+		"##":  "h2",
+		"###": "h3",
+	}, true)
 
-	fileContent, err := os.ReadFile("../testdatas/word/A.md")
+	splitDocs, err := mk.Transform(ctx, "../testdatas/word/A.md")
 	if err != nil {
-		t.Fatalf("读取文件失败: %v\n", err)
-	}
-	adoc := &schema.Document{
-		ID:      uuid.New().String(),
-		Content: string(fileContent),
-		MetaData: map[string]any{
-			"title": "A",
-		},
-	}
-
-	splitDocs, err := splitter.Transform(ctx, []*schema.Document{adoc})
-	if err != nil {
-		log.Fatalf("转换失败: %v", err)
+		t.Fatalf("转换失败: %v", err)
 	}
 
 	for i, doc := range splitDocs {
